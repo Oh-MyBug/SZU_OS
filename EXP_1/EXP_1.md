@@ -60,7 +60,7 @@
 #### 例程1：最简单的程序，测试开发环境是否正常
 
 <div align = left>
-    <img src = "fig\image011.png" width = 40%>
+    <img src = "fig\image011.png" width = 32%>
 </div>
 
 #### 例程2：单个子程序的创建
