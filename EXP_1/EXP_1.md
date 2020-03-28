@@ -1,4 +1,4 @@
-[TOC]
+@[TOC]
 
 ### 实验目的与要求
 
@@ -30,23 +30,28 @@
 
 ​		fork函数调用用于创建一个新进程，称为子进程，它与进程（称为系统调用fork的进程）同时运行，此进程称为父进程。创建新的子进程后，两个进程将执行fork（）函数调用之后的下一条指令。子进程使用相同的pc（程序计数器），相同的CPU寄存器，在父进程中使用的相同打开文件。
 
-<img src = "fig\image001.png" width = 70%>
+<div align = left>
+    <img src = "fig\image001.png" width = 70%>
+    <img src = "fig\image003.png" width = 25%>
+</div>
 
+​    		当使用fork函数循环创建多个子进程时，如下代码：
 
-
-<img src = "fig\image003.png" width = 25%>
-
-​		当使用fork函数循环创建多个子进程时，如下代码：
-
-<img src = "fig\image005.png" width = 70%>
+<div align = left>
+    <img src = "fig\image005.png" width = 70%>
+</div>
 
 ​		虽然程序只循环了三次，但是根据fork函数的原理，实际上会产生1+2+4=8个子进程，流程图如下：
 
-<img src = "fig\image007.png" width = 60%>
+<div align = center>
+    <img src = "fig\image007.png" width = 60%>
+</div>
 
 ​		因此，如果需要“子进程完全由父进程产生”，那么可以通过break关键字控制循环，并通过循环因子判断是第几个孩子。代码如下（生成3个子进程）：
 
-<img src = "fig\image009.png" width = 70%>
+<div aligin = left>
+    <img src = "fig\image009.png" width = 70%>
+</div>
 
 ### 实验过程及内容
 
@@ -54,25 +59,35 @@
 
 #### 例程1：最简单的程序，测试开发环境是否正常
 
-<img src = "fig\image011.png" width = 40%>
+<div align = left>
+    <img src = "fig\image011.png" width = 40%>
+</div>
 
 #### 例程2：单个子程序的创建
 
-<img src = "fig\image013.png" width = 100%>
+<div align = left>
+    <img src = "fig\image013.png" width = 100%>
+</div>
 
 #### 例程3：在子进程中调用外部命令
 
 **备注：在之前的例程中出现过的相关头文件以及函数之后都不再说明**
 
-<img src = "fig\image015.png" width = 80%>
+<div align = left>
+    <img src = "fig\image015.png" width = 80%>
+</div>
 
 #### 实验内容4程序：编写程序实现三种功能（详细功能见实验内容4）
 
-<img src = "fig\image017.png" width = 80%>
+<div align = left>
+    <img src = "fig\image017.png" width = 80%>
+</div>
 
 #### 实验内容5程序：编写程序实现对应功能（详细功能见实验内容5）
 
-<img src = "fig\image019.png" width = 80%>
+<div align = left>
+    <img src = "fig\image019.png" width = 80%>
+</div>
 
 ####   实验结论
 
@@ -80,25 +95,34 @@
 
 #### 例程1：最简单的程序，测试开发环境是否正常
 
-<img src = "fig\image021.png" width = 80%>
+<div align = center>
+    <img src = "fig\image021.png" width = 80%>
+</div>
 
 #### 例程2：单个子程序的创建
 
-<img src = "fig\image023.png" width = 80%>
+<div align = center>
+    <img src = "fig\image023.png" width = 80%>
+</div>
 
 #### 例程3：在子进程中调用外部命令
 
-<img src = "fig\image025.png" width = 80%>
+<div align = center>
+    <img src = "fig\image025.png" width = 80%>
+</div>
 
 ####  实验内容4程序：编写程序实现三种功能（详细功能见实验内容4）
 
-<img src = "fig\image027.png" width = 80%> 
+<div align = center>
+    <img src = "fig\image027.png" width = 80%>
+</div>
 
 #### 实验内容5程序：编写程序实现对应功能（详细功能见实验内容5） 
 
-<img src = "fig\image029.png" width = 80%>                   
-
-<img src = "fig\image031.png" width = 80%>                                                 
+<div align = center>
+    <img src = "fig\image029.png" width = 80%>
+    <img src = "fig\image031.png" width = 80%>
+</div>                                                         
 
 ​		观察可发现：各个子进程并发执行的顺序并不是固定的，所以调用fork()后，无法确定子进程间谁将率先访问CPU。  
 
