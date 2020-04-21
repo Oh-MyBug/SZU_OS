@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sys.shm.h>
+#include <sys/shm.h>
 
 
 #include "shm_com_sem.h"
