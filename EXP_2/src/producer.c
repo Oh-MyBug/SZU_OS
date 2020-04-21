@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <sys/shm.h>
-
-=======
 #include <stdio.h>    
 #include <sys/ipc.h>    
 #include <sys/shm.h>    
@@ -15,7 +6,6 @@
 #include <stdlib.h>    
 #include <unistd.h>    
 #include <string.h>  
->>>>>>> cac4d52df7bfe70fb146cce3806370ff751e4d24
 
 #include "shm_com_sem.h"
 
