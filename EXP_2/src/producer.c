@@ -22,7 +22,7 @@ int main(void)
 	sem_t *sem_queue, *sem_queue_empty, *sem_queue_full;
 	// 访问共享内存的互斥量、空缓冲区、满缓冲区信号量。皆为信号量指针
 	
-	shmid = shmget((key_t)1234,sizeof(struct shared_mem_st), 0666|IPC_CREAT);	// 获取共享内存区，并挂入内存
+	shmid = shmget((key_t)1234, sizeof(struct shared_mem_st), 0666|IPC_CREAT);	// 获取共享内存区，并挂入内存
 	if(shmid == -1){
 		fprintf(stderr, "shmget failed\n");
 		exit(EXIT_FAILURE);
@@ -33,7 +33,6 @@ int main(void)
         fprintf(stderr, "shmat failed\n"); 
         exit(EXIT_FAILURE);
     }  	
-	printf("Memory attached at %X\n", (int)shared_memory);    //设置共享内存 
 	
 	shared_stuff = (struct shared_mem_st*)shared_memory;	// 将缓冲区指针转换为share_mem_st类型
 	
@@ -54,20 +53,21 @@ int main(void)
 		printf("Enter your Produce('quit' for exit):");
 		gets(key_line);
 		
-		// 如果键入"quit"则退出
-		if(strcmp(shared_stuff->buffer[shared_stuff->line_write], "quit")){
-			break;
-		}
-		
 		//将输入的行写入缓冲区，要有信号量操作
 		sem_wait(sem_queue_empty);
 		sem_wait(sem_queue);
 		strncpy(shared_stuff->buffer[shared_stuff->line_write],key_line,LINE_SIZE);//将key_line写入共享内存	
+		printf("============================\n");
 		printf("current product No.%d\n",shared_stuff->line_write);
-		printf("current product： %s\n",shared_stuff->buffer[shared_stuff->line_write]);
+		printf("current product: %s\n",shared_stuff->buffer[shared_stuff->line_write]);
 		shared_stuff->line_write = (shared_stuff->line_write+1)%NUM_LINE;  // 写完指向下一行，当写最后一行时，指向第一行
 		sem_post(sem_queue);
-		sem_post(sem_queue_full);		
+		sem_post(sem_queue_full);
+
+		// 如果键入"quit"则退出
+		if(strcmp(key_line, "quit") == 0){
+			break;
+		}
 	}
 	
 	// 因键入"quit"从前面while()循环中跳出到此处，程序退出前，释放信号量
@@ -81,5 +81,6 @@ int main(void)
 	if(shmctl(shmid, IPC_RMID, 0) == -1){	//删除共享内存     
         fprintf(stderr, "shmctl(IPC_RMID) failed\n");  
         exit(EXIT_FAILURE);
-    }  
+    }
+	printf("Producer no longer produce products!");
 }

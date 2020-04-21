@@ -3,7 +3,7 @@
 #include <semaphore.h>
 
 #define LINE_SIZE 256
-#define NUM_LINE 16
+#define NUM_LINE 2
 
 // 用于创建信号量时的识别id
 const char * queue_mutex = "queue_mutex";
