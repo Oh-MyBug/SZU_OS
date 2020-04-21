@@ -1,6 +1,7 @@
 #include <stdio.h>    
 #include <sys/ipc.h>    
 #include <sys/shm.h>    
+#include <sys/stat.h>
 #include <semaphore.h>    
 #include <fcntl.h>    
 #include <stdlib.h>    
@@ -8,7 +9,6 @@
 #include <string.h>
 
 #include "shm_com_sem.h"
-
 
 
 int main()
