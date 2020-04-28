@@ -36,11 +36,13 @@ int main(void)
 	
 	shared_stuff = (struct shared_mem_st*)shared_memory;	// 将缓冲区指针转换为share_mem_st类型
 	
-	
 	// 下面创建三个信号量	
-	sem_queue = sem_open("queue_mutex",O_CREAT,0644,1);  //sem=sem_open(sem_name,O_CREAT,0644,1);
-    sem_queue_empty = sem_open("queue_empty",O_CREAT,0644,NUM_LINE);  //赋值为NUM_LINE,即buffer可用行数
-    sem_queue_full = sem_open("queue_full",O_CREAT,0644,0);  //赋值为0  	
+	// queue_mutex互斥信号量，初始化为1
+	sem_queue = sem_open("queue_mutex",O_CREAT,0644,1);
+	// queue_empty空缓冲区信号量，初始化为NUM_LINE，即buffer可用行数
+    sem_queue_empty = sem_open("queue_empty",O_CREAT,0644,NUM_LINE);  
+	// queue_full满缓冲区信号量，初始化为0
+    sem_queue_full = sem_open("queue_full",O_CREAT,0644,0); 
 
 	// 读写指针初始化，开始时都指向第0行
 	shared_stuff->line_write = 0;
@@ -50,17 +52,22 @@ int main(void)
 	// Read and put input into buffer
 	while(1){
 		// 提示可以输入，并用gets()读入按键行到key_line中
-		printf("Enter your Produce('quit' for exit):");
+		printf("Produce your product('quit' for exit):");
 		gets(key_line);
 		
-		//将输入的行写入缓冲区，要有信号量操作
+		// 将输入的行写入缓冲区，要有信号量操作
+		// 等待queue_empty空缓冲区信号量以及queue_mutex互斥信号量
 		sem_wait(sem_queue_empty);
 		sem_wait(sem_queue);
-		strncpy(shared_stuff->buffer[shared_stuff->line_write],key_line,LINE_SIZE);//将key_line写入共享内存	
+		//将key_line写入共享内存	
+		strncpy(shared_stuff->buffer[shared_stuff->line_write],key_line,LINE_SIZE);
+		// 打印当前生产者产生的商品
 		printf("============================\n");
 		printf("current product No.%d\n",shared_stuff->line_write);
 		printf("current product: %s\n",shared_stuff->buffer[shared_stuff->line_write]);
-		shared_stuff->line_write = (shared_stuff->line_write+1)%NUM_LINE;  // 写完指向下一行，当写最后一行时，指向第一行
+		// 写完指向下一行，当写最后一行时，指向第一行
+		shared_stuff->line_write = (shared_stuff->line_write+1)%NUM_LINE;  
+		// 释放queue_mutex互斥信号量以及queue_full满缓冲区信号量
 		sem_post(sem_queue);
 		sem_post(sem_queue_full);
 

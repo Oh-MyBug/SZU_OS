@@ -42,28 +42,34 @@ int main(void)
     sem_queue_empty = sem_open("queue_empty",0);  //赋值为NUM_LINE,即buffer可用行数
     sem_queue_full = sem_open("queue_full",0);  //赋值为0  	
 	
-	// 创建了两个进程
+	// 父进程创建了一个子进程
 	fork_result = fork();
 	if(fork_result == -1){
 		fprintf(stderr, "Fork failure\n");
 	}
 	if(fork_result==0){//子进程
 		while(1){
-			//信号量操作，打印消费内容及进程号，发现quit退出
+			// 等待queue_full满缓冲区信号量以及queue_mutex互斥信号量
 			sem_wait(sem_queue_full);
 			sem_wait(sem_queue);
-			sleep(1);
+			// 加入适当的时延以便于观察
+			sleep(3);
+			// 如果生产者停止生产（quit），消费者停止消费
 			if(strcmp(shared_stuff->buffer[shared_stuff->line_read],"quit") == 0){
+				// 释放queue_mutex互斥信号量以及queue_full满缓冲区信号量
 				sem_post(sem_queue);
 				sem_post(sem_queue_full);	//需要通知另一个消费者生产者已停止生产
+				// 打印停止消费信息
 				printf("Producer no longer produces!--from child to father\n");
 				break;
 			}
 			else{
+				// 打印消费信息
 				printf("===========customer(child):%d============\n",getpid());
 				printf("current product No.%d\n",shared_stuff->line_read);
 				printf("current product：%s\n",shared_stuff->buffer[shared_stuff->line_read]);
 				shared_stuff->line_read = (shared_stuff->line_read+1)%NUM_LINE; 
+				// 释放queue_mutex互斥信号量以及queue_full满缓冲区信号量
 				sem_post(sem_queue);
 				sem_post(sem_queue_empty);
 			}
@@ -75,22 +81,27 @@ int main(void)
 	}
 	else{//父进程
 		while(1){
-			//信号量操作，打印消费内容及进程号，发现quit退出
+			// 等待queue_full满缓冲区信号量以及queue_mutex互斥信号量
 			sem_wait(sem_queue_full);
 			sem_wait(sem_queue);
-			sleep(1);
-			
+			// 加入适当的时延以便于观察
+			sleep(3);
+			// 如果生产者停止生产（quit），消费者停止消费
 			if(strcmp(shared_stuff->buffer[shared_stuff->line_read],"quit") == 0){
+				// 释放queue_mutex互斥信号量以及queue_full满缓冲区信号量
 				sem_post(sem_queue);
 				sem_post(sem_queue_full);	//需要通知另一个消费者生产者已停止生产
+				// 打印停止消费信息
 				printf("Producer no longer produces!--from father to child\n");
 				break;
 			}
 			else{
+				// 打印消费信息
 				printf("===========customer(father):%d============\n",getpid());
 				printf("current product No.%d\n",shared_stuff->line_read);
 				printf("current product：%s\n",shared_stuff->buffer[shared_stuff->line_read]);
 				shared_stuff->line_read = (shared_stuff->line_read+1)%NUM_LINE; 
+				// 释放queue_mutex互斥信号量以及queue_full满缓冲区信号量
 				sem_post(sem_queue);
 				sem_post(sem_queue_empty);
 			}
@@ -99,6 +110,7 @@ int main(void)
 		sem_unlink(queue_mutex);  
         sem_unlink(queue_empty);  
         sem_unlink(queue_full);
+		// 等待子进程结束进程
 		waitpid(fork_result,NULL,0);  
 	}
 	exit(EXIT_SUCCESS);

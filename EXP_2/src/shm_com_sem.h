@@ -6,7 +6,7 @@
 #define NUM_LINE 2
 
 // 用于创建信号量时的识别id
-const char * queue_mutex = "queue_mutex";
+const char * queue_mutex = "queue_mutex";	// 
 const char * queue_empty = "queue_empty";
 const char * queue_full = "queue_full";
 
@@ -21,3 +21,4 @@ struct shared_mem_st{
 	int line_write;	// 用于表示正在写第几行
 	int line_read;	// 用于表示正在读第几行
 };
+
