@@ -79,30 +79,30 @@ pipe()函数调用成功，返回值为0；否则返回-1，并且设置了适�
 
 原语：
 
-<div align = center>
-<img src="fig/11.png" width=70%>
+<div>
+<img src="fig/11.png" width=100%>
 </div>
 
 需求实现：
 
 1. 一个程序（进程）从客户端读入按键信息，一次将“一整行”按键信息保存到一个共享存储的缓冲区内并等待读取进程将数据读走，不断重复上面的操作；
 
-<div align = center>
+<div>
 <img src="fig/12.png" width=70%>
 </div>
 
 2. 另一个程序（进程）生成两个进程，用于显示缓冲区内的信息，这两个进程并发读取缓冲区信息后将缓冲区清空（一个进程的两次显示操作之间可以加入适当的时延以便于观察）。
 
-<div align = center>
-<img src="fig/13.png" width=70%>
+<div>
+<img src="fig/13.png" width=30%>
 <img src="fig/14.png" width=70%>
 <img src="fig/15.png" width=70%>
 </div>
 
 3. 要求使用posix信号量来完成这里的生产者和消费者的同步关系。
 
-<div align = center>
-<img src="fig/16.png" width=70%>
+<div>
+<img src="fig/16.png" width=50%>
 </div>
 
 ### 实验结论
@@ -132,7 +132,7 @@ pipe()函数调用成功，返回值为0；否则返回-1，并且设置了适�
 
 <div align = center>
 <img src="fig/7.png" width=70%>
-<img src="fig/8.png" width=70%>
+<img src="fig/8.png" width=50%>
 </div>
 
 5.	再次用ipcs查看共享内存情况，发现进程开始时创建的共享内存已经不存在
