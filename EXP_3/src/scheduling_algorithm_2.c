@@ -224,8 +224,8 @@ void main(){
 		scanf("%d",&sch);
 		switch(sch){
 			case 1: FCFS();break;
-			case 2: SJF();break;
-			case 3: HRRN();break;
+			case 2: input();SJF();break;
+			case 3: input();HRRN();break;
 			case 4: RR();break;
 			case 5: RRMF();break;
 			case 0: printf("exit\n");break;
