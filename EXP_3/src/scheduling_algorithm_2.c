@@ -113,11 +113,17 @@ void FCFS(){									// 先来先服务算法
 
 void SJF(){
 // 以服务时间为排序对象，从小到大排序，可能有多次排序
-	int run_clock = 0;						// 模拟CPU运行时钟 
+	int run_clock = 9999;						// 模拟CPU运行时钟 
 	int i, j;
 	double k;
 	for(i = 0; i < num; i ++){
 		order[i] = pcbdata[i].time_need;	// 以服务时间为排序对象，以当前已到达的进程为基准暂时存储 
+	}
+	// 将CPU运行时钟运行至进程到达时间最短的那一刻 
+	for(j = 0; j < num; j ++){
+		if(pcbdata[j].time_start <= run_clock){
+			run_clock = pcbdata[j].time_start;
+		}
 	}
 	for(i = 0; i < num; i ++){
 		int min_time_need = 9999;
@@ -153,13 +159,19 @@ void SJF(){
 
 void HRRN(){
 // 以响应比为排序对象，从大到小排序，可能有多次排序 
-	int run_clock = 0;												// 模拟CPU运行时钟 
+	int run_clock = 9999;												// 模拟CPU运行时钟 
 	int waited[num];
 	int i,j;
 	double k;
 	for(i = 0; i < num; i ++){
 		order[i] = pcbdata[i].time_need;							// order数组存储运行时间 
 		waited[i] = run_clock - pcbdata[i].time_start;				// waited数组存储已等待时间 
+	}
+	// CPU运行时钟运行至进程到达时间最短的那一刻 
+	for(j = 0; j < num; j ++){
+		if(pcbdata[j].time_start <= run_clock){
+			run_clock = pcbdata[j].time_start;
+		}
 	}
 	for(i = 0; i < num; i ++){
 		double max_rp = 0;
