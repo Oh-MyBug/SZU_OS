@@ -1,10 +1,3 @@
-/*************************************************************************
-    > File Name: scheduling_algorithm.c
-    > Author: C.Li
-    > Mail: justleecong@163.com 
-    > Created Time: 2020年05月13日 星期三 08时31分59秒
- ************************************************************************/
-
 #include<time.h>
 #include<stdio.h>
 #include<stdlib.h>
