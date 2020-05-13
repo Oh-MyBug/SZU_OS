@@ -1,7 +1,6 @@
 // 模拟实现各种CPU调度算法 
 #include "stdio.h"
 #include <stdlib.h>
-#include <conio.h>
 #include <time.h>
 
 #define getpch(type) (type*)malloc(sizeof(type))
