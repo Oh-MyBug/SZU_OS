@@ -41,14 +41,14 @@ int main(){
 
 void *count3s_thread(void* id){
 	/*compute portion of the array that this thread should work on*/         
+		pthread_mutex_lock(&m);
 	int length_per_thread = length / thread_num;    //length of every thread         
 	int start = *(int *)id * length_per_thread;     //every thread start position         
 	int i; 
 	for (i = start; i < start + length_per_thread; i++){
 		if (array[i] == 3){
-			pthread_mutex_lock(&m);
 			count++;      //计数，为加入互斥保护  
-			pthread_mutex_unlock(&m); 			
 		}         
 	}
+		pthread_mutex_unlock(&m); 			
 }
