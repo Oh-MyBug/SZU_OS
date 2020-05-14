@@ -11,7 +11,7 @@ int count;
 int t;
 void *count3s_thread(void* id);
 
-mutex m;
+pthread_mutex_t m;
 
 int main(){
 	pthread_mutex_init(&m, NULL);
