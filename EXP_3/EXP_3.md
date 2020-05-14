@@ -267,13 +267,13 @@ execve()函数的第一个参数就是想要变成的“新”进程影像（可
 
 ###### 进程间通信—互斥量
 
-编译后运行 no-mutex-demo（注意编译时要有-lpthread 参数指出所需的线程库），每次运行结果并不唯一（共享变量未能得到互斥访问）。
+编译后运行 [no-mutex-demo](src/no-mutex-demo.c)（注意编译时要有-lpthread 参数指出所需的线程库），每次运行结果并不唯一（共享变量未能得到互斥访问）。
 
 <div>
 <img src="fig/no-mutex.png" width=70%>
 </div>
 
-运行 mutex_demo，每次运行都获得相同的结果。由于实现了共享变 量的互斥访问，因此每次运行的结构都是确定的值。
+运行 [mutex_demo](src/mutex_demo.c)，每次运行都获得相同的结果。由于实现了共享变 量的互斥访问，因此每次运行的结构都是确定的值。
 
 <div>
 <img src="fig/mutex.png" width=65%>
