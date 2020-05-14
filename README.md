@@ -12,4 +12,4 @@ Shenzhen University operating system course experiment source code and document.
 PS.
 
 - `update.sh`用于更新本地仓库
-- `upload.sh`用于将本机仓库同步上传至远程仓库
+- `upload.sh`用于将本地仓库同步上传至远程仓库
