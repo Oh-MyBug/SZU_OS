@@ -106,7 +106,8 @@ void FCFS(){									// 先来先服务算法
 		temp += pcbdata[ready[i]].time_need;				// 进程完成时间 
 		j = temp - pcbdata[ready[i]].time_start;			// 周转时间 
 		k = (float)j/pcbdata[ready[i]].time_need;			// 带权周转时间 
-		printf("Finish time--%d, Turnaround time--%d, Turnaround time with weighted--%.2f\n", temp, j, k);
+		printf("Finish time--%d, Turnaround time--%d, Turnaround time with weighted--%.2f\n",
+				temp, j, k);
 	}
 	printf("---------All processes are scheduled!---------\n");
 } 
@@ -117,7 +118,7 @@ void SJF(){
 	int i, j;
 	double k;
 	for(i = 0; i < num; i ++){
-		order[i] = pcbdata[i].time_need;	// 以服务时间为排序对象，以当前已到达的进程为基准暂时存储 
+		order[i] = pcbdata[i].time_need; // 以服务时间为排序对象，以当前已到达的进程为基准暂时存储 
 	}
 	// 将CPU运行时钟运行至进程到达时间最短的那一刻 
 	for(j = 0; j < num; j ++){
@@ -152,7 +153,8 @@ void SJF(){
 		temp += pcbdata[ready[i]].time_need;				// 进程完成时间 
 		j = temp - pcbdata[ready[i]].time_start;			// 周转时间 
 		k = (float)j/pcbdata[ready[i]].time_need;			// 带权周转时间 
-		printf("Finish time--%d, Turnaround time--%d, Turnaround time with weighted--%.2f\n", temp, j, k);
+		printf("Finish time--%d, Turnaround time--%d, Turnaround time with weighted--%.2f\n", 
+				temp, j, k);
 	}
 	printf("---------All processes are scheduled!---------\n");
 }
