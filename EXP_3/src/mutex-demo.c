@@ -11,10 +11,7 @@ int count;
 int t;
 void *count3s_thread(void* id);
 
-mutex m;
-
 int main(){
-	pthread_mutex_init(&m, NULL);
 	int i;
 	int tid[thread_num];
 	pthread_t threads[thread_num];
@@ -46,9 +43,7 @@ void *count3s_thread(void* id){
 	int i; 
 	for (i = start; i < start + length_per_thread; i++){
 		if (array[i] == 3){
-			pthread_mutex_lock(&m);
-			count++;      //计数，为加入互斥保护  
-			pthread_mutex_unlock(&m); 			
+			count++;      //计数，为加入互斥保护                 
 		}         
 	}
 }
