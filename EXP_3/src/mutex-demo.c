@@ -11,7 +11,10 @@ int count;
 int t;
 void *count3s_thread(void* id);
 
+pthread_mutex_t m;
+
 int main(){
+	pthread_mutex_init(&m, NULL);
 	int i;
 	int tid[thread_num];
 	pthread_t threads[thread_num];
@@ -23,7 +26,9 @@ int main(){
 	for(t = 0; t < thread_num; t ++){
 		count = 0;
 		tid[t] = t;
+		pthread_mutex_lock(&m);
 		int err = pthread_create(&(threads[t]), NULL, count3s_thread, &(tid[t]));
+		pthread_mutex_unlock(&m); 
 		if(err){
 			printf("create thread error!\n");
 			return 0;
@@ -43,7 +48,7 @@ void *count3s_thread(void* id){
 	int i; 
 	for (i = start; i < start + length_per_thread; i++){
 		if (array[i] == 3){
-			count++;      //计数，为加入互斥保护                 
+			count++;      //计数，为加入互斥保护  
 		}         
-	}
+	}			
 }
