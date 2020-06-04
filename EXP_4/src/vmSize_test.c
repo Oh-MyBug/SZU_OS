@@ -4,14 +4,14 @@
 #include<unistd.h>
 
 int main(){
-	int i, MAX_NUM = 100000;
+	int i, MAX_NUM = 100000000;
 	char *m;
 	printf("Process %d has been generated!\n", getpid());
 	getchar();
-	for(i = 1; i < MAX_NUM; i ++){
-		m = (char *)malloc(i*pow(2,30)*sizeof(char)); // 分配1G内存
+	for(i = 1024; i < MAX_NUM; i ++){
+		m = (char *)malloc(i*pow(2,20)*sizeof(char));
 		if(m == NULL){
-			printf("Run out of virtual memory!\n");
+			printf("Allocating %dMB memory, run out of virtual memory!\n", i);
 			getchar();
 			break;
 		}else
