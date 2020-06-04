@@ -6,7 +6,7 @@
 int main(){
 	int *m;
 	int i,sum = pow(2,26);
-	printf("Process %d has been generated!\n");
+	printf("Process %d has been generated!\n", getpid());
 	getchar();
 	
 	m = (int *)malloc(sum*sizeof(int)); // 256MB
