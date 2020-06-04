@@ -6,7 +6,7 @@
 #include <math.h>
  
 int main(){
-	clock_t start,end;
+	clock_t start, finish;
 	int *m;
 	int i, sum = 3*pow(2, 28);	// 3*pow(2, 28)*sizeof(int) = 3GB
 	double runtime;
@@ -24,8 +24,9 @@ int main(){
 	finish = clock();
 	
 	runtime = (double)(finish - start) / CLOCKS_PER_SEC;    
-	printf( "%f seconds\n", duration ); 
+	printf( "%f seconds\n", runtime); 
 	
+	getchar();
 	free(m);
 	return 0;
 }

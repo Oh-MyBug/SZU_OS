@@ -6,8 +6,8 @@
 #include <time.h>
 #include <math.h>
  
-int sum = 3*pow(2, 28);	// 3*pow(2, 28)*sizeof(int) = 3GB
-int *m = (int *)malloc(sum*sizeof(int));
+int sum;// = 3*pow(2, 28);	// 3*pow(2, 28)*sizeof(int) = 3GB
+int *m;// = (int *)malloc(sum*sizeof(int));
 int a = 0;
 void* visit(void* arg){
 	int i = *(int *)arg;
@@ -19,11 +19,13 @@ void* visit(void* arg){
 }
 
 int main(){
-	clock_t start,end;
+	clock_t start, finish;
 	double runtime;
 	pthread_t id[16];
 	int i,ret;
 	int pc[16];
+	sum = 3*pow(2, 28);
+	m = (int *)malloc(sum*sizeof(int));
 	int x = sum /16;
 	for(i=-1;++i<16;){
 		pc[i] = i * x;
@@ -36,11 +38,12 @@ int main(){
 		ret=pthread_create(&id[i],NULL,visit,&pc[i]);
 	}
 	while(a!=16){}
-	end = clock();
+	finish = clock();
 	
 	runtime = (double)(finish - start) / CLOCKS_PER_SEC;    
-	printf( "%f seconds\n", duration ); 
-	
+	printf( "%f seconds\n", runtime); 
+
+	getchar();
 	free(m);
 	return 0;
 }
