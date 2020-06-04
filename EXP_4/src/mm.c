@@ -50,7 +50,7 @@ int main(){
 		printf("Application for memory allocation failed!\n");
 	getchar();
 	
-	
+	// 释放内存
 	free(m1);free(m4);free(m6);free(m7);free(m8);
 	return 0;
 }
