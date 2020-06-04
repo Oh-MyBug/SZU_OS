@@ -5,7 +5,7 @@
 
 int main(){
 	int *m;
-	int i, sum = 3*pow(2, 26);	// 3*pow(2, 28)*sizeof(int) = 3GB
+	int i, sum = 3*pow(2, 28);	// 3*pow(2, 28)*sizeof(int) = 3GB
 	printf("Process %d has been generated!\n", getpid());
 	getchar();
 	
