@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <sys/time.h>
+#include <time.h>
+#include <math.h>
  
 int main(){
-	timeval starttime,endtime;
+	clock_t start,end;
 	int *m;
 	int i, sum = 3*pow(2, 28);	// 3*pow(2, 28)*sizeof(int) = 3GB
 	double runtime;
@@ -16,15 +17,14 @@ int main(){
 	printf("3GB memory space has been applied for!\n");
 	
 	//相隔4KB进行读写就是相隔1024个int进行读写
-	gettimeofday(&starttime,0);
+	start = clock();
 	for(i=0;i<sum;i += 1024){
 		m[i]++;
 	}
-	gettimeofday(&endtime,0);
+	finish = clock();
 	
-	runtime = 1000000*(endtime.tv_sec - starttime.tv_sec) + endtime.tv_usec - starttime.tv_usec;
-	runtime /=2000;//ms
-	printf("%lfms = %lfs", runtime, runtime/1000);
+	runtime = (double)(finish - start) / CLOCKS_PER_SEC;    
+	printf( "%f seconds\n", duration ); 
 	
 	free(m);
 	return 0;
