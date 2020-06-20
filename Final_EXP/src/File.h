@@ -1,5 +1,5 @@
-#ifndef __FILEOPERATE_H
-#define __FILEOPERATE_H
+// #ifndef __FILEOPERATE_H
+// #define __FILEOPERATE_H
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -78,4 +78,4 @@ int my_read(char fileName[], int length);					// 读文件
 int my_write(char fileName[], char content[]);				// 写文件
 int findUnitInTable(dirTable* myDirTable, char unitName[]);	// 从目录中查找目录项目
 
-#endif
+// #endif

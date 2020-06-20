@@ -31,7 +31,7 @@ int getBlock(int blockSize)
 {
     int startBlock = 0;
     int sum = 0;
-	int i;
+	int i,j;
     for(i = 0; i < block_count; i++)
     {
         if(systemStartAddr[i] == '0')//可用盘块
@@ -42,7 +42,7 @@ int getBlock(int blockSize)
             if(sum == blockSize)//连续盘块是否满足需求
             {
                 //满足分配，置1
-                for(int j = startBlock; j < startBlock+blockSize; j++)
+                for(j = startBlock; j < startBlock+blockSize; j++)
                     systemStartAddr[j] = '1';
                 return startBlock;
             }
