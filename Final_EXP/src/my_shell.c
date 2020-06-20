@@ -48,7 +48,7 @@ int main()
         if(s > 0)//有读取到字符
         {
             int i = 0;
-            for( i = 0; i < s; ++i)
+            for(i = 0; i < s; ++i)
             {
                 if(buf[i] == '\b' && i >= 1)
                 {

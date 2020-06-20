@@ -41,11 +41,12 @@ char* getPath()
 //展示当前目录 ls
 void showDir()
 {
+	int i;
     int unitAmount = currentDirTable->dirUnitAmount;
     printf("total:%d\n", unitAmount);
     printf("name\ttype\tsize\tFCB\tdataStartBlock\n");
     //遍历所有表项
-    for(int i=0; i<unitAmount; i++)
+    for(i=0; i<unitAmount; i++)
     {
         //获取目录项
         dirUnit unitTemp = currentDirTable->dirs[i];
@@ -379,6 +380,7 @@ FCB* my_open(char fileName[])
 //读文件
 int my_read(char fileName[], int length)
 {
+	int i;
     int unitIndex = findUnitInTable(currentDirTable, fileName);
     if(unitIndex == -1)
     {
@@ -409,7 +411,7 @@ int my_read(char fileName[], int length)
     int dataSize = myFCB->dataSize;
     /* printf("myFCB->dataSize = %d\n", myFCB->dataSize); */
     //在不超出数据长度下，读取指定长度的数据
-    for(int i = 0; i < length && myFCB->readptr < dataSize; i++, myFCB->readptr++)
+    for(i = 0; i < length && myFCB->readptr < dataSize; i++, myFCB->readptr++)
     {
         printf("%c", *(data+myFCB->readptr));
     }
@@ -433,6 +435,7 @@ int my_read(char fileName[], int length)
 //写文件，从末尾写入 write
 int my_write(char fileName[], char content[])
 {
+	int i;
     int unitIndex = findUnitInTable(currentDirTable, fileName);
     if(unitIndex == -1)
     {
@@ -452,7 +455,7 @@ int my_write(char fileName[], char content[])
     if(sem_wait(myFCB->write_sem) == -1)
         perror("sem_wait error");
     //在不超出文件的大小的范围内写入
-    for(int i = 0; i < contentLen && myFCB->dataSize < fileSize; i++, myFCB->dataSize++)
+    for(i = 0; i < contentLen && myFCB->dataSize < fileSize; i++, myFCB->dataSize++)
     {
         *(data+myFCB->dataSize) = content[i];
     }
@@ -471,10 +474,11 @@ int my_write(char fileName[], char content[])
 //从目录中查找目录项目
 int findUnitInTable(dirTable* myDirTable, char unitName[])
 {
+	int i;
     //获得目录表
     int dirUnitAmount = myDirTable->dirUnitAmount;
     int unitIndex = -1;
-    for(int i = 0; i < dirUnitAmount; i++)//查找目录项位置
+    for(i = 0; i < dirUnitAmount; i++)//查找目录项位置
         if(strcmp(unitName, myDirTable->dirs[i].fileName) == 0)
             unitIndex = i;
     return unitIndex;
