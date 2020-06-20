@@ -11,7 +11,6 @@ struct dirTable* rootDirTable; //根目录
 struct dirTable* currentDirTable;  //当前位置
 char path[200]; //保存当前绝对路径
 
-
 //初始化根目录
 void initRootDir()
 {
@@ -30,13 +29,11 @@ void initRootDir()
     path[1]='\0';
 }
 
-
 //获得绝对路径
 char* getPath()
 {
     return path;
 }
-
 
 //展示当前目录 ls
 void showDir()
@@ -65,10 +62,10 @@ void showDir()
     }
 }
 
-
 //切换目录 cd
 int changeDir(char dirName[])
 {
+	int i;
     //目录项在目录位置
     int unitIndex = findUnitInTable(currentDirTable, dirName);
     //不存在
@@ -90,7 +87,7 @@ int changeDir(char dirName[])
     {
         //回退绝对路径
         int len = strlen(path);
-        for(int i=len-2;i>=0;i--)
+        for(i=len-2;i>=0;i--)
             if(path[i] == '/')
             {
                 path[i+1]='\0';
@@ -104,8 +101,6 @@ int changeDir(char dirName[])
     return 0;
 }
 
-
-
 //修改文件名或者目录名 mv
 int changeName(char oldName[], char newName[])
 {
@@ -118,7 +113,6 @@ int changeName(char oldName[], char newName[])
     strcpy(currentDirTable->dirs[unitIndex].fileName, newName);
     return 0;
 }
-
 
 //******************创建和删除文件********************
 //创建文件 touch
@@ -148,7 +142,6 @@ int creatFile(char fileName[], int fileSize)
     return 0;
 }
 
-
 //创建目录 mkdir
 int creatDir(char dirName[])
 {
@@ -172,7 +165,6 @@ int creatDir(char dirName[])
         return -1;
     return 0;
 }
-
 
 //创建FCB
 int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize)
@@ -200,7 +192,6 @@ int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize)
     }
     return 0;
 }
-
 
 //添加目录项
 int addDirUnit(struct dirTable* myDirTable, char fileName[], int type, int FCBBlockNum)
@@ -230,7 +221,6 @@ int addDirUnit(struct dirTable* myDirTable, char fileName[], int type, int FCBBl
 
     return 0;
 }
-
 
 //删除文件 rm
 int deleteFile(char fileName[])
@@ -263,7 +253,6 @@ int deleteFile(char fileName[])
     return 0;
 }
 
-
 //释放文件内存
 int releaseFile(int FCBBlock)
 {
@@ -284,20 +273,19 @@ int releaseFile(int FCBBlock)
     return 0;
 }
 
-
 //删除目录项
 int deleteDirUnit(struct dirTable* myDirTable, int unitIndex)
 {
+	int i;
     //迁移覆盖
     int dirUnitAmount = myDirTable->dirUnitAmount;
-    for(int i=unitIndex; i<dirUnitAmount-1; i++)
+    for(i=unitIndex; i<dirUnitAmount-1; i++)
     {
         myDirTable->dirs[i] = myDirTable->dirs[i+1];
     }
     myDirTable->dirUnitAmount--;
     return 0;
 }
-
 
 //删除目录 rmdir
 int deleteDir(char dirName[])
@@ -329,10 +317,10 @@ int deleteDir(char dirName[])
     return 0;
 }
 
-
 //删除文件/目录项
 int deleteFileInTable(struct dirTable* myDirTable, int unitIndex)
 {
+	int i;
    //查找文件
     struct dirUnit myUnit = myDirTable->dirs[unitIndex];
     //判断类型
@@ -344,7 +332,7 @@ int deleteFileInTable(struct dirTable* myDirTable, int unitIndex)
         //递归删除目录下的所有文件
         printf("cycle delete dir %s\n", myUnit.fileName);
         int unitCount = table->dirUnitAmount;
-        for(int i=1; i<unitCount; i++)//忽略“..”
+        for(i=1; i<unitCount; i++)//忽略“..”
         {
             printf("delete %s\n", table->dirs[i].fileName);
             deleteFileInTable(table, i);
@@ -358,8 +346,6 @@ int deleteFileInTable(struct dirTable* myDirTable, int unitIndex)
     }
     return 0;
 }
-
-
 
 //**********************读写操作*******************
 struct FCB* my_open(char fileName[])
@@ -375,7 +361,6 @@ struct FCB* my_open(char fileName[])
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
     return myFCB;
 }
-
 
 //读文件
 int my_read(char fileName[], int length)
@@ -431,7 +416,6 @@ int my_read(char fileName[], int length)
     return 0;
 }
 
-
 //写文件，从末尾写入 write
 int my_write(char fileName[], char content[])
 {
@@ -469,8 +453,6 @@ int my_write(char fileName[], char content[])
     return 0;
 }
 
-
-
 //从目录中查找目录项目
 int findUnitInTable(struct dirTable* myDirTable, char unitName[])
 {
@@ -483,5 +465,3 @@ int findUnitInTable(struct dirTable* myDirTable, char unitName[])
             unitIndex = i;
     return unitIndex;
 }
-
-

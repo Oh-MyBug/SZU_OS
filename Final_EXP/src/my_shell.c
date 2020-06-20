@@ -9,8 +9,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "File.h"
-#include "Disk.h"
+#include "File.c"
+#include "Disk.c"
 
 /* 获得当前目录名 */
 void GetDir()

@@ -1,6 +1,3 @@
-// #ifndef __FILEOPERATE_H
-// #define __FILEOPERATE_H
-
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -35,7 +32,7 @@ struct dirUnit{
  *************************************************************/
 struct dirTable {
     int dirUnitAmount;//目录项数目
-    dirUnit dirs[DIRTABLE_MAX_SIZE];//目录项列表
+    struct dirUnit dirs[DIRTABLE_MAX_SIZE];//目录项列表
 };
 
 /***************************************************************
@@ -67,15 +64,13 @@ int changeDir(char dirName[]);	// 切换目录 cd
 int changeName(char oldName[], char newName[]);	// 修改文件名或者目录名 mv
 int creatFile(char fileName[], int fileSize);	// 创建文件 touch
 int creatDir(char dirName[]);					// 创建目录 mkdir
-int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize);						// 创建FCB
-int addDirUnit(dirTable* myDirTable, char fileName[], int type, int FCBBlockNum);	// 添加目录项
-int deleteFile(char fileName[]);							// 删除文件 rm
-int releaseFile(int FCBBlock);								// 释放文件内存
-int deleteDirUnit(dirTable* myDirTable, int unitIndex);		// 删除目录项
-int deleteDir(char dirName[]);								// 删除目录 rmdir
-int deleteFileInTable(dirTable* myDirTable, int unitIndex);	// 删除文件/目录项
-int my_read(char fileName[], int length);					// 读文件
-int my_write(char fileName[], char content[]);				// 写文件
-int findUnitInTable(dirTable* myDirTable, char unitName[]);	// 从目录中查找目录项目
-
-// #endif
+int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize);								// 创建FCB
+int addDirUnit(struct dirTable* myDirTable, char fileName[], int type, int FCBBlockNum);	// 添加目录项
+int deleteFile(char fileName[]);									// 删除文件 rm
+int releaseFile(int FCBBlock);										// 释放文件内存
+int deleteDirUnit(struct dirTable* myDirTable, int unitIndex);		// 删除目录项
+int deleteDir(char dirName[]);										// 删除目录 rmdir
+int deleteFileInTable(struct dirTable* myDirTable, int unitIndex);	// 删除文件/目录项
+int my_read(char fileName[], int length);							// 读文件
+int my_write(char fileName[], char content[]);						// 写文件
+int findUnitInTable(struct dirTable* myDirTable, char unitName[]);	// 从目录中查找目录项目

@@ -12,11 +12,11 @@ void initSystem()
     /* 分配100M空间 */
     systemStartAddr = (char*)malloc(system_size * sizeof(char));
     //初始化盘块的位示图：当其值为“0”时，表示对应的盘块空闲；为“1”时，表示已经分配
-    for(i = 0; i < block_count; i++)						// 系统盘块数目100*1024
+    for(i = 0; i < block_count; i++)							// 系统盘块数目100*1024
         systemStartAddr[i] = '0';
     //用于存放位示图的空间已被占用
     int bitMapSize = block_count * sizeof(char) / block_szie;	//位示图占用盘块数 = 盘块数/盘块大小 = 100
-    for(i=0; i<bitMapSize; i++)								//从零开始分配
+    for(i=0; i<bitMapSize; i++)									//从零开始分配
         systemStartAddr[i] = '1';   							//盘块已被使用
 }
 
