@@ -51,7 +51,7 @@ int getBlock(int blockSize)
         else//已被使用,连续已经被打断
             sum = 0;
     }
-    printf("not found such series memory Or memory is full\n");
+    printf("not found such series memory or memory is full\n");
     return -1;
 }
 //获得盘块的物理地址
@@ -64,7 +64,7 @@ int getAddrBlock(char* addr)
 {
     return (addr - systemStartAddr)/block_szie;
 }
-//释放盘块、
+//释放盘块
 int releaseBlock(int blockNum, int blockSize)
 {
 	int i;
