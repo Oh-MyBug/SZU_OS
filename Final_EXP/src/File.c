@@ -11,6 +11,11 @@ struct dirTable* rootDirTable; //根目录
 struct dirTable* currentDirTable;  //当前位置
 char path[200]; //保存当前绝对路径
 
+/* 信号量 */
+sem_t *count_sem;
+sem_t *write_sem;
+
+
 //初始化根目录
 void initRootDir()
 {
@@ -178,18 +183,18 @@ int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize)
     currentFCB->readptr = 0;//文件读指针
 
 
-    currentFCB->count_sem = sem_open("count_sem", O_CREAT, 0644, NUMREADER);
-    if(currentFCB->count_sem == SEM_FAILED)
-    {
-        perror("sem_open error");
-        exit(1);
-    }
-    currentFCB->write_sem = sem_open("write_sem", O_CREAT, 0644, 1);
-    if(currentFCB->write_sem == SEM_FAILED)
-    {
-        perror("sem_open error");
-        exit(1);
-    }
+    //currentFCB->count_sem = sem_open("count_sem", O_CREAT, 0644, NUMREADER);
+    //if(currentFCB->count_sem == SEM_FAILED)
+    //{
+    //    perror("sem_open error");
+    //    exit(1);
+    //}
+    //currentFCB->write_sem = sem_open("write_sem", O_CREAT, 0644, 1);
+    //if(currentFCB->write_sem == SEM_FAILED)
+    //{
+    //    perror("sem_open error");
+    //    exit(1);
+    //}
     return 0;
 }
 
@@ -247,14 +252,14 @@ int deleteFile(char fileName[])
     }
     int FCBBlock = myUnit.startBlock;
     //释放内存
-    releaseFile(FCBBlock);
+    releaseFile(FCBBlock, unitIndex);
     //从目录表中剔除
     deleteDirUnit(currentDirTable, unitIndex);
     return 0;
 }
 
 //释放文件内存
-int releaseFile(int FCBBlock)
+int releaseFile(int FCBBlock, int unitIndex)
 {
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
     myFCB->link--;  //链接数减一
@@ -265,10 +270,13 @@ int releaseFile(int FCBBlock)
         releaseBlock(myFCB->blockNum, myFCB->fileSize);
     }
     //释放FCB的空间
-    sem_close(myFCB->count_sem);
-    sem_close(myFCB->write_sem);
-    sem_unlink("count_sem");
-    sem_unlink("write_sem");
+	char w_sem[15], c_sem[15];
+	sprintf(w_sem, "write_sem%d", unitIndex);
+	sprintf(c_sem, "count_sem%d", unitIndex);
+    sem_close(count_sem);
+    sem_close(write_sem);
+    sem_unlink(c_sem);
+    sem_unlink(w_sem);
     releaseBlock(FCBBlock, 1);
     return 0;
 }
@@ -342,7 +350,7 @@ int deleteFileInTable(struct dirTable* myDirTable, int unitIndex)
     }else {//文件
         //释放文件内存
         int FCBBlock = myUnit.startBlock;
-        releaseFile(FCBBlock);
+        releaseFile(FCBBlock, unitIndex);
     }
     return 0;
 }
@@ -372,26 +380,24 @@ int my_read(char fileName[], int length)
         printf("file no found\n");
         return -1;
     }
+	
+	char w_sem[15];
+	sprintf(w_sem, "write_sem%d",unitIndex);
+    write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
+    /* 获得写者锁 */
+	//int val;
+	//sem_getvalue(write_sem, &val);
+	//printf("%s:%d\n",w_sem, val);
+	if(val > 0)
+		if(sem_wait(write_sem) == -1)
+			perror("sem_wait error");
+	
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
     myFCB->readptr = 0; //文件指针重置
     //读数据
     char* data = (char*)getBlockAddr(myFCB->blockNum);
-    int val;
-    myFCB->count_sem = sem_open("count_sem", 0);
-    /* 获取记录读者数量的锁 */
-    if(sem_wait(myFCB->count_sem) == -1)
-        perror("sem_wait error");
-    sem_getvalue(myFCB->count_sem, &val);
-    /* 根据拥有锁的进程数量来判断是否是第一个读者 */
-    /* 如果是第一个读者就负责锁上写者锁 */
-    if(val == NUMREADER-1)
-    {
-        myFCB->write_sem = sem_open("write_sem", 0);
-        if(sem_wait(myFCB->write_sem) == -1)
-            perror("sem_wait error");
-    }
 
     int dataSize = myFCB->dataSize;
     /* printf("myFCB->dataSize = %d\n", myFCB->dataSize); */
@@ -406,13 +412,9 @@ int my_read(char fileName[], int length)
     /* 这样就能控制进程不会立即释放锁 */
     printf("\ninput a character to end up reading....\n");
     getchar();
+	
     /* 如果是最后一个读者就负责释放读者锁 */
-    if(val == NUMREADER)
-    {
-        sem_post(myFCB->write_sem);
-    }
-    sem_post(myFCB->count_sem);
-    printf("\n");
+    sem_post(write_sem);
     return 0;
 }
 
@@ -426,6 +428,17 @@ int my_write(char fileName[], char content[])
         printf("file no found\n");
         return -1;
     }
+
+	char w_sem[15];
+	sprintf(w_sem, "write_sem%d",unitIndex);
+    write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
+    /* 获得写者锁 */
+	//int val;
+	//sem_getvalue(write_sem, &val);
+	//printf("%s:%d\n",w_sem, val);
+	if(sem_wait(write_sem) == -1)
+		perror("sem_wait error");
+	
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
@@ -434,20 +447,22 @@ int my_write(char fileName[], char content[])
     int contentLen = strlen(content);
     int fileSize = myFCB->fileSize * block_szie;
     char* data = (char*)getBlockAddr(myFCB->blockNum);
-    myFCB->write_sem = sem_open("write_sem", 0);
-    /* 获得写者锁 */
-    if(sem_wait(myFCB->write_sem) == -1)
-        perror("sem_wait error");
-    //在不超出文件的大小的范围内写入
+	
+	//在不超出文件的大小的范围内写入
     for(i = 0; i < contentLen && myFCB->dataSize < fileSize; i++, myFCB->dataSize++)
     {
         *(data+myFCB->dataSize) = content[i];
     }
+	
     /* 模拟编辑器,控制写者不立即退出 */
     printf("input a character to end up waiting....\n");
     getchar();
+	
     /* 释放写者锁 */
-    sem_post(myFCB->write_sem);
+    sem_post(write_sem);
+	//sem_getvalue(write_sem, &val);
+	//printf("%s:%d\n",w_sem, val);
+	
     if(myFCB->dataSize == fileSize)
         printf("file is full, can't write in\n");
     return 0;

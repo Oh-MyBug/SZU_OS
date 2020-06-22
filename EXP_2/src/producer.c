@@ -69,7 +69,7 @@ int main(void)
 		// 释放queue_mutex互斥信号量以及queue_full满缓冲区信号量
 		sem_post(sem_queue);
 		sem_post(sem_queue_full);
-
+		
 		// 如果键入"quit"则退出
 		if(strcmp(key_line, "quit") == 0){
 			break;

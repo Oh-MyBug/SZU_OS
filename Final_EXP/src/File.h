@@ -51,10 +51,6 @@ struct FCB {
     int dataSize;   //已写入的内容大小，字节为单位
     int readptr;    //读指针，字节为单位
     int link;       //文件链接数
-
-    /* 信号量 */
-    sem_t *count_sem;
-    sem_t *write_sem;
 };
 
 void initRootDir();	// 初始化根目录
@@ -67,7 +63,7 @@ int creatDir(char dirName[]);					// 创建目录 mkdir
 int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize);								// 创建FCB
 int addDirUnit(struct dirTable* myDirTable, char fileName[], int type, int FCBBlockNum);	// 添加目录项
 int deleteFile(char fileName[]);									// 删除文件 rm
-int releaseFile(int FCBBlock);										// 释放文件内存
+int releaseFile(int FCBBlock, int unitIndex);										// 释放文件内存
 int deleteDirUnit(struct dirTable* myDirTable, int unitIndex);		// 删除目录项
 int deleteDir(char dirName[]);										// 删除目录 rmdir
 int deleteFileInTable(struct dirTable* myDirTable, int unitIndex);	// 删除文件/目录项
