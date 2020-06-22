@@ -15,28 +15,31 @@ struct shared_mem_st{
 };
 
 /* 创建一个100M的共享内存 */
-void *shared_memory = (void *)0;	// 共享内存(缓冲区指针)，分配的共享内存的原始首地址   
-struct shared_mem_st *shared_stuff; // 将无类型共享存储区转换为shared_mem_st类型的指针，将指向shared_memory
-    
-int shmid;	//共享内存的id
+// 共享内存(缓冲区指针)，分配的共享内存的原始首地址   
+void *shared_memory = (void *)0;	
+// 将无类型共享存储区转换为shared_mem_st类型的指针，将指向shared_memory
+struct shared_mem_st *shared_stuff; 
+// 共享内存的id
+int shmid;	
 
 //初始化系统
 void initSystem()
 {
 	int i;	
-	shmid = shmget((key_t)1234, sizeof(struct shared_mem_st), 0666|IPC_CREAT);	// 获取共享内存区，并挂入内存
+	// 获取共享内存区，并挂入内存
+	shmid = shmget((key_t)1234, sizeof(struct shared_mem_st), 0666|IPC_CREAT);	
 	if(shmid == -1){
 		fprintf(stderr, "shmget failed\n");
 		exit(EXIT_FAILURE);
 	}
-	// printf("shimd:%d\n", shmid);
-	shared_memory = shmat(shmid, 0, 0);	// 创建共享存储段之后，将进程连接到它的地址空间
+	// 创建共享存储段之后，将进程连接到它的地址空间
+	shared_memory = shmat(shmid, 0, 0);	
     if(shared_memory == (void*)-1)   {  
         fprintf(stderr, "shmat failed\n"); 
         exit(EXIT_FAILURE);
     }  	
-	
-	shared_stuff = (struct shared_mem_st*)shared_memory;	// 将缓冲区指针转换为share_mem_st类型
+	// 将缓冲区指针转换为share_mem_st类型
+	shared_stuff = (struct shared_mem_st*)shared_memory;	
 	
 	//初始化盘块的位示图：当其值为“0”时，表示对应的盘块空闲；为“1”时，表示已经分配
     for(i = 0; i < block_count; i++)							// 系统盘块数目100*1024
@@ -44,7 +47,7 @@ void initSystem()
     //用于存放位示图的空间已被占用
     int bitMapSize = block_count * sizeof(char) / block_szie;	//位示图占用盘块数 = 盘块数/盘块大小 = 100
     for(i=0; i<bitMapSize; i++)									//从零开始分配
-        shared_stuff->systemStartAddr[i] = '1';   							//盘块已被使用
+        shared_stuff->systemStartAddr[i] = '1';   				//盘块已被使用
 }
 
 //退出系统

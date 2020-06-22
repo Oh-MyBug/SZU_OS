@@ -18,8 +18,6 @@ struct dirUnit{
     int startBlock;     //FCB起始盘块
 };
 
-#define DIRTABLE_MAX_SIZE 28    //目录表项最大值
-
 /*************************************************************
  *	//目录表结构：
  *  本系统规定一个目录表只占用一个盘块，一个目录项大小为36B，*
@@ -30,6 +28,7 @@ struct dirUnit{
  *  当创建一个目录表时，系统会自动为目录表加上一项名为”..”的 *
  *  目录项，指示父目录表的位置。							 *
  *************************************************************/
+#define DIRTABLE_MAX_SIZE 28    //目录表项最大值
 struct dirTable {
     int dirUnitAmount;//目录项数目
     struct dirUnit dirs[DIRTABLE_MAX_SIZE];//目录项列表
