@@ -115,6 +115,12 @@ int changeName(char oldName[], char newName[])
         printf("file not found\n");
         return -1;
     }
+	//检测新名字长度
+    if(strlen(newName) >= NUM)
+    {
+        printf("new name too long\n");
+        return -1;
+    }
     strcpy(currentDirTable->dirs[unitIndex].fileName, newName);
     return 0;
 }
