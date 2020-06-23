@@ -128,14 +128,14 @@ int main()
                 printf("usage:mv oldname, newname\n");
             }
         }
-		// 接收touch指令
-        else if(!strcmp(MyArgv[0], "touch"))
+		// 接收open指令
+        else if(!strcmp(MyArgv[0], "open"))
         {
             if(MyArgv[1] != NULL && MyArgv[2] != NULL)
                 creatFile(MyArgv[1], atoi(MyArgv[2]));
             else
             {
-                printf("usage:touch filename filesize\n");
+                printf("usage:open filename filesize\n");
             }
         }
 		// 接收mkdir指令
