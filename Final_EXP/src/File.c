@@ -46,7 +46,7 @@ void showDir()
 	int i;
     int unitAmount = currentDirTable->dirUnitAmount;
     printf("total:%d\n", unitAmount);
-    printf("name\ttype\tsize\tFCB\tdataStartBlock\n");
+    printf("name\t\ttype\tsize\tFCB\tdataStartBlock\n");
     //遍历所有表项
     for(i=0; i<unitAmount; i++)
     {
@@ -373,17 +373,22 @@ int my_read(char fileName[], int length)
         return -1;
     }
 	
-	char w_sem[15];
+	char w_sem[15], c_sem[15];
 	sprintf(w_sem, "write_sem%d",unitIndex);
+	sprintf(c_sem, "count_sem%d",unitIndex);
     write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
+	count_sem = sem_open(c_sem, O_CREAT, 0644, 1);
     /* 获得写者锁 */
 	int val;
 	sem_getvalue(write_sem, &val);
 	//printf("%s:%d\n",w_sem, val);
-	if(val > 0)
+	if(val == 1)
 		if(sem_wait(write_sem) == -1)
 			perror("sem_wait error");
-	
+	sem_getvalue(count_sem, &val);
+	if(sem_wait(count_sem) == -1)
+		perror("sem_count error");
+	sem_post(count_sem);
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
@@ -421,21 +426,23 @@ int my_write(char fileName[], char content[])
         return -1;
     }
 
-	char w_sem[15];
+	char w_sem[15], c_sem[15];
 	sprintf(w_sem, "write_sem%d",unitIndex);
+	sprintf(c_sem, "count_sem%d",unitIndex);
     write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
+	count_sem = sem_open(c_sem, O_CREAT, 0644, 1);
     /* 获得写者锁 */
-	//int val;
-	//sem_getvalue(write_sem, &val);
+	int val;
+	sem_getvalue(count_sem, &val);
 	//printf("%s:%d\n",w_sem, val);
 	if(sem_wait(write_sem) == -1)
 		perror("sem_wait error");
-	
+	if(val == 1)
+		if(sem_wait(count_sem) == -1)
+			perror("sem_count error");
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
-    /* myFCB->dataSize = 0; */
-    /* myFCB->readptr = 0; */
     int contentLen = strlen(content);
     int fileSize = myFCB->fileSize * block_szie;
     char* data = (char*)getBlockAddr(myFCB->blockNum);
@@ -451,9 +458,9 @@ int my_write(char fileName[], char content[])
     getchar();
 	
     /* 释放写者锁 */
-    sem_post(write_sem);
-	//sem_getvalue(write_sem, &val);
-	//printf("%s:%d\n",w_sem, val);
+	if(val == 0)
+		sem_post(count_sem);
+	sem_post(write_sem);
 	
     if(myFCB->dataSize == fileSize)
         printf("file is full, can't write in\n");
