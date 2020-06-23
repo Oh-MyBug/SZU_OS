@@ -371,8 +371,8 @@ int my_read(char fileName[], int length)
 	sprintf(w_sem, "write_sem%d",unitIndex);
     write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
     /* 获得写者锁 */
-	//int val;
-	//sem_getvalue(write_sem, &val);
+	int val;
+	sem_getvalue(write_sem, &val);
 	//printf("%s:%d\n",w_sem, val);
 	if(val > 0)
 		if(sem_wait(write_sem) == -1)
