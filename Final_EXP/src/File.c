@@ -120,7 +120,7 @@ int changeName(char oldName[], char newName[])
 }
 
 //******************创建和删除文件********************
-//创建文件 touch
+//创建文件 open
 int creatFile(char fileName[], int fileSize)
 {
     //检测文件名字长度
@@ -181,20 +181,6 @@ int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize)
     currentFCB->link = 1;//文件链接数
     currentFCB->dataSize = 0;//文件已写入数据长度
     currentFCB->readptr = 0;//文件读指针
-
-
-    //currentFCB->count_sem = sem_open("count_sem", O_CREAT, 0644, NUMREADER);
-    //if(currentFCB->count_sem == SEM_FAILED)
-    //{
-    //    perror("sem_open error");
-    //    exit(1);
-    //}
-    //currentFCB->write_sem = sem_open("write_sem", O_CREAT, 0644, 1);
-    //if(currentFCB->write_sem == SEM_FAILED)
-    //{
-    //    perror("sem_open error");
-    //    exit(1);
-    //}
     return 0;
 }
 

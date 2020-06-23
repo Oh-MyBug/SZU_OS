@@ -57,12 +57,14 @@ char* getPath();	// 获得绝对路径
 void showDir();		// 展示当前目录 ls
 int changeDir(char dirName[]);	// 切换目录 cd
 int changeName(char oldName[], char newName[]);	// 修改文件名或者目录名 mv
-int creatFile(char fileName[], int fileSize);	// 创建文件 touch
+int creatFile(char fileName[], int fileSize);	// 创建文件 open
 int creatDir(char dirName[]);					// 创建目录 mkdir
-int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize);								// 创建FCB
-int addDirUnit(struct dirTable* myDirTable, char fileName[], int type, int FCBBlockNum);	// 添加目录项
+// 创建FCB
+int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize);			
+// 添加目录项					
+int addDirUnit(struct dirTable* myDirTable, char fileName[], int type, int FCBBlockNum);	
 int deleteFile(char fileName[]);									// 删除文件 rm
-int releaseFile(int FCBBlock, int unitIndex);										// 释放文件内存
+int releaseFile(int FCBBlock, int unitIndex);						// 释放文件内存
 int deleteDirUnit(struct dirTable* myDirTable, int unitIndex);		// 删除目录项
 int deleteDir(char dirName[]);										// 删除目录 rmdir
 int deleteFileInTable(struct dirTable* myDirTable, int unitIndex);	// 删除文件/目录项
