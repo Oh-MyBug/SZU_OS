@@ -9,280 +9,226 @@
 * [实验体会](#实验体会)
 * [实验源码](#源码)
 
-### 实验目的与要求
+### 实验目的
 
-#### 操作部分
-
-- 学习 BlackBoard中的“综合1预备1-进程控制”，完成材料中的全部操作，并截屏记录（实验中2.2.2. 孤儿进程和僵尸进程, 2.2.3. exec 函数族,2.3. 创建pthread 线程2.4. 进程/线程资源开销 需要截屏记录，并配有必要的文字说明或结果的解读）。
-- 学习 BlackBoard中的“综合1预备2-进程间通信与同步”，完成材料中的全部操作，并截屏记录（实验中的4.2. 进程间同步 需要截屏记录，并配有必要的文字说明或结果的解读）。
+- 了解Linux 文件命令行操作命令；
+- 了解Linux ext3文件系统上的软硬链接；
 
 
-#### 编程部分
+### 实验要求
 
-模拟在单处理器多进程操作系统的CPU调度。本实验为模拟实验，不要求实现真正的进程创建与进程调度。主要实现各种调度算法。
+- 可以使用Linux或其它Unix类操作系统；
+- 学习该操作系统提供的文件系统的命令行接口；
+- 学习文件的软硬链接的使用；
 
-进程PCB结构：标识符、进程名称、到达时间、服务时间、剩余运行时间、已使用时间、进程状态。其中进程状态有三种：就绪R，运行E，结束F。
+### 实验环境
 
-剩余运行时间和已使用时间两个属性用于时间片轮转算法和多级反馈队列算法。进程每使用完一个时间片，已使用时间就会增加一个时间片的长度，剩余运行时间=服务时间 – 已使用时间。
+- 硬件：桌面PC
+- 软件：Linux 或其他操作系统
 
-例程提供了两种测试数据：一种是程序内置数据，通过语句已经预先设置好，存放在数组pcbdata中，数据来源于课本P76第二个表格的数据，共5个进程。另一种方法是手工输入，使用函数input()，输入数据同样存放在数组pcbdata中。如果使用input函数，内置数据将不会使用。
+### 实验步骤及说明
 
-- 阅读理解例程，掌握例程的运作流程。运行例程，理解先来先服务算法的调度原理和运行结果。
-- 参考先来先服务算法，尝试实现其他四种调度算法：短作业优先、高响应比、时间片轮转、多级反馈队列。要求至少实现二种算法。（40分）
-  - 除了多级反馈队列，其他算法采用非抢占调度
-  - 短作业优先算法使用例题一数据或程序内置数据，要求运行结果给出调度顺序、完成时间、周转时间、带权周转时间
-  - 高响应比算法使用例题二的数据，要求运行结果给出调度顺序、完成时间、周转时间、带权周转时间
-  - 时间片轮转算法可以使用程序内置数据，要求运行结果给出每个时间片是被哪个进程使用，每个进程完成时，要修改状态并输出提示。
-  - 多级反馈队列算法使用例题三的数据，要求运行结果给出正确的进程调度顺序和过程描述。
+##### 学习使用Linux文件系统提供的的ls 、touch、rm、cp、mv、mkdir等命令（希望尽量涵盖各种满足日常编程所需操作），记录相关命令执行结果
 
-**例题一**：在单处理机环境下，对4个作业Job1、Job2、Job3、Job4进行非抢占式调度，它们的到达时间均为1，所需运行时间分别为9、16、3、11。
-**例题二**：在单处理机环境下，对4个进程P1、P2、P3、P 4进行非抢占式调度，它们的到达时间分别为10、12、14、16，运行时间分别为8、12、4、6。
-**例题三**：在某一操作系统中对进程调度采用多级反馈队列调度算法。现设定采用三级反馈队列调度算法，三个队列分别为I、II、III，对应时间片为2、4、8。现有四个进程A、B、C、D，到达时刻分别为0、5、7、12，执行时间分别为7、4、13、9。请写出整个进程调度过程。
+**ls常用命令**
 
-###  实验过程及实验结果
-
-#### 编程部分
-
-##### 先来先服务调度算法(First Come First Service, FCFS)
-
-###### 代码实现
+- 显示当前目录下包括隐藏文件在内的所有文件列表
 
 <div>
-<img src="fig/FCFS_code.png" width=70%>
+<img src="fig/1.png" width=70%>
 </div>
 
-###### 运行结果
+- 列出可读文件和文件夹详细信息
 
 <div>
-<img src="fig/FCFS_result.png" width=70%>
+<img src="fig/2.png" width=55%>
 </div>
 
-###### 算法原理
-
-当作业调度中采用该算法时，系统将按照作业到达的先后次序来进行调度，优先从后备队列中，选择一个或多个位于队列头部的作业，把他们调入内存，分配所需资源、创建进程，然后放入“就绪队列”,直到该进程运行到完成或发生某事件堵塞后，进程调度程序才将处理机分配给其他进程。
-
-**从时间轴上看**
+- 显示文件的inode信息，索引节点（index inode简称为“inode”）是Linux中一个特殊的概念，具有相同的索引节点号的两个文本本质上是同一个文件（除文件名不同外）
 
 <div>
-<img src="fig/FCFS_fig.png" width=70%>
+<img src="fig/3.png" width=65%>
 </div>
 
-**从表格上看**
+**Touch命令**
+
+- 如果该文件不存在，则不创建该文件
 
 <div>
-<img src="fig/FCFS_table.png" width=70%>
+<img src="fig/4.png" width=65%>
 </div>
 
-###### 算法优缺点
-
-算法容易实现。但效率不高，只顾及作业等候时间，没考虑作业要求服务时间的长短。因此优待了长作业而不利于短作业；有利于CPU繁忙型作业，而不利于I/O繁忙型作业。
-
-##### 短作业优先调度算法(shortest Job First, SJF)
-
-###### 代码实现
+- touch -r test1 test2 即：把test2的时间设置成和test1一样
 
 <div>
-<img src="fig/SJF_code.png" width=70%>
+<img src="fig/5.png" width=65%>
 </div>
 
-###### 运行结果
+- 设定文件的时间戳
 
 <div>
-<img src="fig/SJF_1.png" width=70%>
+<img src="fig/6.png" width=70%>
 </div>
+
+**rm命令**
+
+- -f选项表示：不管文件是否存在均不出现提示
 
 <div>
-<img src="fig/SJF_2.png" width=70%>
+<img src="fig/7.png" width=70%>
 </div>
 
-###### 算法原理
-
-短作业优先算法是以作业的长短来计算优先级，作业越短，其优先级越高。作业的长短是以作业所要求的运行时间来衡量的。
-
-**从时间轴上看**
+- -r/-R表示：指示rm将参数中列出的全部目录和子目录均递归地删除。
 
 <div>
-<img src="fig/SJF_fig.png" width=70%>
+<img src="fig/8.png" width=70%>
 </div>
 
-**从表格上看**
+- -i表示：在删除文件前，提示确认信息。一般情况下，Linux都对这个命令重定义为这个选项。即默认情况下删除文件都会存在提示
 
 <div>
-<img src="fig/SJF_table.png" width=70%>
+<img src="fig/9.png" width=70%>
 </div>
 
-###### 算法优缺点
-
-- 对长作业不利。严重的是，若一长作业(进程)进入系统的后备队列(就绪队列)，由于调度程序总是优先调度那些(即使是后进来的)短作业(进程)，将导致长作业(进程)长期不被调度——饥饿
-- 完全未考虑作业(进程)的紧迫程度，因而不能保证紧迫性作业(进程)会被及时处理
-- 由于作业(进程)的长短只是根据用户所提供的估计执行时间而定的，而用户又可能会有意或无意地缩短其作业的估计运行时间，致使该算法不一定能真正做到短作业优先调度。
-
-##### 高响应比优先调度算法(Highest Response Ratio Next, HRRN)
-
-###### 代码实现
+- -v表示：执行后显示正在进行的动作，同其他命令
 
 <div>
-<img src="fig/HRRN_code_1.png" width=65%>
+<img src="fig/10.png" width=70%>
 </div>
+
+ **cp命令**
+
+- 复制一个源文件到目标文件（夹）。命令格式为：cp 源文件 目标文件（夹）
 
 <div>
-<img src="fig/HRRN_code_2.png" width=70%>
+<img src="fig/11.png" width=70%>
 </div>
 
-###### 运行结果
+- 同时复制多个文件到目标文件（夹）下。命令格式为：cp 源文件1 源文件2 目标文件夹 或 cp 文件* 目标文件夹
 
 <div>
-<img src="fig/HRRN_1.png" width=70%>
+<img src="fig/12.png" width=70%>
 </div>
+
+- 复制源文件夹到目标文件夹下。命令格式为：cp -r 源文件夹 目标文件夹
 
 <div>
-<img src="fig/HRRN_2.png" width=70%>
+<img src="fig/13.png" width=70%>
 </div>
 
-###### 算法原理
+**mv命令**
 
-高响应比优先调度算法既考虑作业的执行时间也考虑作业的等待时间，综合了先来先服务和最短作业优先两种算法的特点
-
-该算法中的响应比是指作业等待时间与运行比值，响应比公式定义如下：
-
-响应比 =（等待时间+要求服务时间）/ 要求服务时间,即RR=（w+s）/s=1+w/s，因此响应比一定是大于等于1的。
-
-**从时间轴上看**
+- -b：当目标文件存在时，先进行备份在覆盖
 
 <div>
-<img src="fig/HRRN_fig.png" width=70%>
+<img src="fig/14.png" width=70%>
 </div>
 
-**从表格上看**
+- -f：当目标文件存在时，强制覆盖
 
 <div>
-<img src="fig/HRRN_table.png" width=70%>
+<img src="fig/15.png" width=70%>
 </div>
 
-###### 算法优缺点
-
-- 短作业与先后次序的兼顾，且不会使长作业长期得不到服务
-- 响应比计算系统开销，增加系统开销
-
-#### 操作部分
-
-##### 学习 BlackBoard中的“综合1预备1-进程控制”，完成材料中的全部操作，并截屏记录。
-
-###### 孤儿进程
-
-首先运行[fork-demo](src/fork-demo.c)，共有两个进程（2955和2956）呈现父子关系：
+- -i：默认选项，当目标文件存在时，提示是否覆盖
 
 <div>
-<img src="fig/fork-demo-1.png" width=70%>
+	<img src="fig/16.png" width=70%>
 </div>
 
-然后在右边的终端中敲击回车键一次，此时 父进程退出，子进程成为孤儿进程并被 init 进程收养（子进程 2956 的 PPID 修改为指向1234号(init)进程）
+**mkdir命令**
+
+- 创建一个空目录
 
 <div>
-<img src="fig/fork-demo-2.png" width=70%>
+<img src="fig/17.png" width=70%>
 </div>
 
-最后再在右边的终端中点击回车键一次，此时子进程 2956 正常结束，没有造成任何资源浪费.
+- 递归创建多个目录
 
 <div>
-<img src="fig/fork-demo-3.png" width=70%>
+<img src="fig/18.png" width=70%>
 </div>
 
-###### 僵尸进程
-
-编译运行 [zombie-demo](src/zombie-demo.c) 程序，同时在另一终端上执行 ps j 命令可以看到字进程处于“Z+” 状态（表明是僵尸状态，<defunct>）
+- 创建权限为777的目录
 
 <div>
-<img src="fig/zombie-demo-1.png" width=70%>
+<img src="fig/19.png" width=70%>
 </div>
 
-在运行 10 秒之后，父进程将执行 wait()处理字进程的遗留数据对象，子进程将从僵尸状态转为完全消失状态
+- 创建新目录都显示信息
 
 <div>
-<img src="fig/zombie-demo-2.png" width=70%>
+<img src="fig/20.png" width=70%>
 </div>
 
-###### Exec函数族
-
-execve()函数的第一个参数就是想要变成的“新”进程影像（可执行文件），第二个参数 是命令行参数，第三个变是环境变量。这里可以看到子进程通过 execve()将自己变身为 “/usr/bin/pstree”，因此不再执行与父进程里的代码——即后面的“printf("this printf()will not be exec,because …”是没有机会得到执行的。真实的运行结果([fork-exec-demo](src/fork-exec-demo))如所示，可以看到子进程变成了 pstree。
+- 一个命令创建项目的目录结构
 
 <div>
-<img src="fig/fork-exec-demo.png" width=70%>
+<img src="fig/21.png" width=70%>
 </div>
 
-###### 创建pthread 线程
-  
-运行 [pthread-demo](src/pthread-demo.c) 将看到两个线程都在执行，各自输出一行信息，等待 10 秒后两个线程 都将自动结束，在 pthread-demo 为结束前，可在另一个终端窗口执行 ps -aLf 查看信息。
+##### 学习Linux文件系统中关于文件硬链接和软链接的概念和相关操作命令，创建软硬链接各一个，给出实验证据表明它们分别是软硬连接；
+
+为解决文件的共享使用，Linux 系统引入了两种链接：硬链接 (hard link) 与软链接（又称符号链接，即 soft link 或 symbolic link）。链接为 Linux 系统解决了文件的共享使用，还带来了隐藏文件路径、增加权限安全及节省存储等好处。若一个 inode 号对应多个文件名，则称这些文件为硬链接。换言之，硬链接就是同一个文件使用了多个别名。
+
+- 硬链接可由命令 link 或 ln 创建。由于硬链接是有着相同 inode 号仅文件名不同的文件，因此硬链接存在以下几点特性：
+  - 文件有相同的 inode 及 data block；
+  - 只能对已存在的文件进行创建（超级用户才可以）；
+  - 不能交叉文件系统进行硬链接的创建；
+  - 不能对目录进行创建，只可对文件创建；
+  - 删除一个硬链接文件并不影响其他有相同 inode 号的文件。
+
+相关操作：
 
 <div>
-<img src="fig/pthread-demo.png" width=70%>
+	<img src="fig/22.png" width=70%>
+    <img src="fig/23.png" width=70%>
+    <img src="fig/24.png" width=70%>
 </div>
 
-###### 进程/线程资源开销
+文件 old.file 与 hard.link 有着相同的 inode 号：660650 及文件权限，inode 是随着文件的存在而存在，因此只有当文件存在时才可创建硬链接，即当 inode 存在且链接计数器（link count）不为 0 时。inode 号仅在各文件系统下是唯一的，当 Linux 挂载多个文件系统后将出现 inode 号重复的现象，因此硬链接创建时不可跨文件系统。设备文件目录 /dev 使用的文件系统是 devtmpfs，而 /root（与根目录 / 一致）使用的是磁盘文件系统 ext4。
 
-在 [fork-100-demo](src/fork-100-demo.c) 运行前、运行中和结束后各执运行一次 cat /proc/slabinfo |grep task_struct，可以看出，在 fork-100-demo 运行时，比运行前后都大约多了 83 个 task_struct 的数据对象（由于有进程动态创建与撤销，因此数据有扰动）
+- 软链接与硬链接不同，若文件用户数据块中存放的内容是另一文件的路径名的指向，则该文件就是软连接。软链接就是一个普通文件，只是数据块内容有点特殊。软链接有着自己的 inode 号以及用户数据块。因此软链接的创建与使用没有类似硬链接的诸多限制：
+  - 软链接有自己的文件属性及权限等；
+  - 可对不存在的文件或目录创建软链接；
+  - 软链接可交叉文件系统；
+  - 软链接可对文件或目录创建；
+  - 创建软链接时，链接计数 i_nlink 不会增加；
+  - 删除软链接并不影响被指向的文件，但若被指向的原文件被删除，则相关软连接被称为死链接（即 dangling link，若被指向路径文件被重新创建，死链接可恢复为正常的软链接）。
+
+相关操作：
 
 <div>
-<img src="fig/fork-100-demo-task.png" width=70%>
+	<img src="fig/25.png" width=70%>
 </div>
 
-下面也来看看 [pthread-100-demo](src/pthread-100-demo.c) 运行前、运行中和结束后的 task_struct 数变化。可以 看出，在 pthread-100-demo 运行时，比运行前后都大约多了 83 个 task_struct 的数据对象（资源）
+- 创建软硬链接各一个，给出实验证据表明它们分别是软硬连接
+  - 创建A.file、B.file；
+  - 为A.file创建硬链接A.link；为B.file创建软链接B.link；
+  - 用命令（ls -liF）查看可以发现软链接和硬链接详细信息不同，软链接会有指向一个文件；
+  - 将文件A.file和B.file都删除掉，用cat命令分别查看A.link和B.link，发现A.link文件（硬链接）可以查看而B.link文件（软链接）会提示该文件不存在。
+  - 因此，可以用命令（ls -liF）查看文件详细信息区别软硬链接；删除链接指向的文件，通过查看链接是否还存在且可读也可以区别它们。
 
 <div>
-<img src="fig/pthread-100-demo-task.png" width=70%>
+	<img src="fig/26.png" width=70%>
 </div>
 
-用 cat /proc/slabinfo |grep vm_area_struct 观察 fork-100demo，可以发现新增大约 17xx 左右的使用
+##### 构建以下目录子树：
 
 <div>
-<img src="fig/fork-100-demo-vm.png" width=70%>
+	<img src="fig/27.png" width=70%>
 </div>
 
-然后对 thread-100-demo 的运行前、运行时和结束后，用用 cat /proc/slabinfo |grep vm_area_struct 观察，可以发现之需要新增大约 3x 左右的使用
-<div>
-<img src="fig/pthread-100-demo-vm.png" width=70%>
-</div>
-
-##### 学习 BlackBoard中的“综合1预备2-进程间通信与同步”，完成材料中的全部操作，并截屏记录。
-
-###### 进程间通信—有名信号量
-
-用 gcc [psem-named-open.c](src/psem-named-open.c) –o psem-named-open –lthread（参数-lpthread 用于指出链 接时所用的线程库）完成编译，然后运行 psem-named-open()。如果没有输入作为标识的文件 名字符串，则给出提示要求用户输入；如果输入一个文件名字符串，正常情况将完成创建过程
+- 构建目录子树
 
 <div>
-<img src="fig/psem-open.png" width=70%>
+	<img src="fig/28.png" width=70%>
 </div>
 
-编译并执行 [psem-named-wait-demo](src/psem-named-wait-demo.c)，输入前面创建信号量时使用的文件名标识，此时打印出当前信号量值为 0（也就是说前面创建的时候初值是 1）。如果在运行一遍，此时信号量的值已经为0，在进行V操作（减1 操作）将阻塞该进程。psem-named-wait-demo 第二次运行后并没有返回到 shell 提示符，如果此时 用另一个中断执行 ps 命令可以看到该进程处于 S 状态。
+- Tree命令查看构建的目录子树
 
 <div>
-<img src="fig/psem-wait.png" width=70%>
+	<img src="fig/29.png" width=70%>
+	<img src="fig/30.png" width=70%>
 </div>
-
-编译并执行 [psem-named-post-demo](src/psem-named-post-demo.c) （与前面 psem-named-wait-demo 不在同一个终端 shell 上），可以看到此时信号量的值增加到 1，并使得原来阻塞的 psem-named-post-demo 被唤醒 并执行完毕.
-
-<div>
-<img src="fig/psem-post.png" width=70%>
-</div>
-
-###### 进程间通信—互斥量
-
-编译后运行 [no-mutex-demo](src/no-mutex-demo.c)（注意编译时要有-lpthread 参数指出所需的线程库），每次运行结果并不唯一（共享变量未能得到互斥访问）。
-
-<div>
-<img src="fig/no-mutex.png" width=70%>
-</div>
-
-运行 [mutex_demo](src/mutex_demo.c)，每次运行都获得相同的结果。由于实现了共享变 量的互斥访问，因此每次运行的结构都是确定的值。
-
-<div>
-<img src="fig/mutex.png" width=65%>
-</div>
-
-### 实验体会
-
-基本掌握了进程控制与进程间通信的内容，以及部分进程调度的内容，在BlackBoard提供的材料错别字多，内容顺序出错的情况下，艰难认真的把材料看完了，收获很大！做完实验后准备再重新复习一遍，看能不能再找出材料中的错误，巩固自己的所学知识！
-
-### 源码
-
-- [scheduling_algorithm_2.c](src/scheduling_algorithm_2.c)
