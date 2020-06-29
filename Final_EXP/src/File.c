@@ -12,7 +12,7 @@ struct dirTable* currentDirTable;  //当前位置
 char path[200]; //保存当前绝对路径
 
 /* 信号量 */
-sem_t *count_sem;
+sem_t *read_sem;
 sem_t *write_sem;
 
 
@@ -264,8 +264,8 @@ int releaseFile(int FCBBlock, int unitIndex)
     //释放FCB的空间
 	char w_sem[15], c_sem[15];
 	sprintf(w_sem, "write_sem%d", unitIndex);
-	sprintf(c_sem, "count_sem%d", unitIndex);
-    sem_close(count_sem);
+	sprintf(c_sem, "read_sem%d", unitIndex);
+    sem_close(read_sem);
     sem_close(write_sem);
     sem_unlink(c_sem);
     sem_unlink(w_sem);
@@ -375,16 +375,21 @@ int my_read(char fileName[], int length)
 	
 	char w_sem[15], c_sem[15];
 	sprintf(w_sem, "write_sem%d",unitIndex);
-	sprintf(c_sem, "count_sem%d",unitIndex);
+	sprintf(c_sem, "read_sem%d",unitIndex);
     write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
-	count_sem = sem_open(c_sem, O_CREAT, 0644, 1);
+	read_sem = sem_open(c_sem, O_CREAT, 0644, 1);
     /* 获得写者锁 */
-	//int val;
-	//sem_getvalue(write_sem, &val);
+	int val, write_wait = 0;
+	sem_getvalue(write_sem, &val);
 	//printf("%s:%d\n",w_sem, val);
-	if(sem_wait(write_sem) == -1)
-		perror("sem_wait error");
-	//sem_getvalue(count_sem, &val);
+	if(val == 1){
+		write_wait = 1;
+		if(sem_wait(write_sem) == -1)
+			perror("sem_wait error");
+	}
+	if(sem_wait(read_sem) == -1)
+		perror("sem_count error");
+	sem_post(read_sem);
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
@@ -407,7 +412,9 @@ int my_read(char fileName[], int length)
     getchar();
 	
     /* 如果是最后一个读者就负责释放读者锁 */
-    sem_post(write_sem);
+	sem_getvalue(write_sem, &val);
+	if(write_wait == 1)
+		sem_post(write_sem);
     return 0;
 }
 
@@ -424,17 +431,20 @@ int my_write(char fileName[], char content[])
 
 	char w_sem[15], c_sem[15];
 	sprintf(w_sem, "write_sem%d",unitIndex);
-	sprintf(c_sem, "count_sem%d",unitIndex);
+	sprintf(c_sem, "read_sem%d",unitIndex);
     write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
-	count_sem = sem_open(c_sem, O_CREAT, 0644, 1);
+	read_sem = sem_open(c_sem, O_CREAT, 0644, 1);
     /* 获得写者锁 */
-	//int val;
-	//sem_getvalue(count_sem, &val);
+	int val, read_wait = 0;
+	sem_getvalue(read_sem, &val);
 	//printf("%s:%d\n",w_sem, val);
-	if(sem_wait(count_sem) == -1)
-		perror("sem_count error");
 	if(sem_wait(write_sem) == -1)
 		perror("sem_wait error");
+	if(val == 1){
+		read_wait = 1;
+		if(sem_wait(sread_sem) == -1)
+			perror("sem_count error");
+	}
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
@@ -453,9 +463,9 @@ int my_write(char fileName[], char content[])
     getchar();
 	
     /* 释放写者锁 */
+	if(read_wait == 1)
+		sem_post(read_sem);
 	sem_post(write_sem);
-	sem_post(count_sem);
-	
 	
     if(myFCB->dataSize == fileSize)
         printf("file is full, can't write in\n");
