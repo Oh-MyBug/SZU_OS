@@ -57,7 +57,7 @@ char* getPath();	// 获得绝对路径
 void showDir();		// 展示当前目录 ls
 int changeDir(char dirName[]);	// 切换目录 cd
 int changeName(char oldName[], char newName[]);	// 修改文件名或者目录名 mv
-int creatFile(char fileName[], int fileSize);	// 创建文件 open
+int creatFile(char fileName[], int fileSize);	// 创建文件 touch
 int creatDir(char dirName[]);					// 创建目录 mkdir
 // 创建FCB
 int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize);			
