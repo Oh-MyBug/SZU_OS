@@ -480,26 +480,3 @@ int findUnitInTable(struct dirTable* myDirTable, char unitName[])
     return unitIndex;
 }
 
-var read_sem, write_sem: semaphore: = 1 : 1;
-int write_wait = 0;
-parbegin
-	readeri begin	// i = 1,2,...
-		if(write_sem == 1){
-			write_wait = 1;
-			P(write_sem);
-		}
-		P(read_sem);
-		V(read_sem);
-		读数据;
-		if(write_wait == 1)
-			V(write_sem);
-	end
-	
-	writeri begin	// i = 1,2,...
-		P(write_sem);
-		P(read_sem);
-		写数据;
-		V(read_sem);
-		V(write_sem);
-	end
-parend
