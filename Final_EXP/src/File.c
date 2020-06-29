@@ -379,16 +379,12 @@ int my_read(char fileName[], int length)
     write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
 	count_sem = sem_open(c_sem, O_CREAT, 0644, 1);
     /* 获得写者锁 */
-	int val;
-	sem_getvalue(write_sem, &val);
+	//int val;
+	//sem_getvalue(write_sem, &val);
 	//printf("%s:%d\n",w_sem, val);
-	if(val == 1)
-		if(sem_wait(write_sem) == -1)
-			perror("sem_wait error");
-	sem_getvalue(count_sem, &val);
-	if(sem_wait(count_sem) == -1)
-		perror("sem_count error");
-	sem_post(count_sem);
+	if(sem_wait(write_sem) == -1)
+		perror("sem_wait error");
+	//sem_getvalue(count_sem, &val);
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
@@ -432,14 +428,13 @@ int my_write(char fileName[], char content[])
     write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
 	count_sem = sem_open(c_sem, O_CREAT, 0644, 1);
     /* 获得写者锁 */
-	int val;
-	sem_getvalue(count_sem, &val);
+	//int val;
+	//sem_getvalue(count_sem, &val);
 	//printf("%s:%d\n",w_sem, val);
+	if(sem_wait(count_sem) == -1)
+		perror("sem_count error");
 	if(sem_wait(write_sem) == -1)
 		perror("sem_wait error");
-	if(val == 1)
-		if(sem_wait(count_sem) == -1)
-			perror("sem_count error");
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
@@ -458,9 +453,9 @@ int my_write(char fileName[], char content[])
     getchar();
 	
     /* 释放写者锁 */
-	if(val == 0)
-		sem_post(count_sem);
 	sem_post(write_sem);
+	sem_post(count_sem);
+	
 	
     if(myFCB->dataSize == fileSize)
         printf("file is full, can't write in\n");
