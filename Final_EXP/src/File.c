@@ -12,9 +12,9 @@ struct dirTable* currentDirTable;  //当前位置
 char path[200]; //保存当前绝对路径
 
 /* 信号量 */
-sem_t *read_sem;
+sem_t *rmutex;
 sem_t *write_sem;
-
+sem_t *rwmutex;
 
 //初始化根目录
 void initRootDir()
@@ -187,6 +187,7 @@ int creatFCB(int fcbBlockNum, int fileBlockNum, int fileSize)
     currentFCB->link = 1;//文件链接数
     currentFCB->dataSize = 0;//文件已写入数据长度
     currentFCB->readptr = 0;//文件读指针
+	currentFCB->readCount = 0;//文件读指针
     return 0;
 }
 
@@ -262,12 +263,12 @@ int releaseFile(int FCBBlock, int unitIndex)
         releaseBlock(myFCB->blockNum, myFCB->fileSize);
     }
     //释放FCB的空间
-	char w_sem[15], c_sem[15];
+	char w_sem[15], r_mt[15];
 	sprintf(w_sem, "write_sem%d", unitIndex);
-	sprintf(c_sem, "read_sem%d", unitIndex);
-    sem_close(read_sem);
+	sprintf(r_mt, "rmutex%d", unitIndex);
+    sem_close(rmutex);
     sem_close(write_sem);
-    sem_unlink(c_sem);
+    sem_unlink(r_mt);
     sem_unlink(w_sem);
     releaseBlock(FCBBlock, 1);
     return 0;
@@ -373,30 +374,33 @@ int my_read(char fileName[], int length)
         return -1;
     }
 	
-	char w_sem[15], c_sem[15];
-	sprintf(w_sem, "write_sem%d",unitIndex);
-	sprintf(c_sem, "read_sem%d",unitIndex);
-    write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
-	read_sem = sem_open(c_sem, O_CREAT, 0644, 1);
-    /* 获得写者锁 */
-	int val, write_wait = 0;
-	sem_getvalue(write_sem, &val);
-	//printf("%s:%d\n",w_sem, val);
-	if(val == 1){
-		write_wait = 1;
-		if(sem_wait(write_sem) == -1)
-			perror("sem_wait error");
-	}
-	if(sem_wait(read_sem) == -1)
-		perror("sem_count error");
-	sem_post(read_sem);
-    //控制块
+	//控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
+	
+	char w_sem[15], r_mt[15], rw_mt[15];
+	sprintf(w_sem, "write_sem%d",unitIndex);
+	sprintf(r_mt, "rmutex%d",unitIndex);
+	sprintf(rw_mt, "rwmutex%d",unitIndex);
+    write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
+	rmutex = sem_open(r_mt, O_CREAT, 0644, 1);
+	rwmutex = sem_open(rw_mt, O_CREAT, 0644, 1);
+	
+    /* 获得锁 */
+	if(sem_wait(rwmutex) == -1)
+		perror("sem_wait error");
+	if(sem_wait(rmutex) == -1)
+		perror("sem_wait error");
+	myFCB->readCount ++;
+	if(myFCB->readCount == 1)
+		if(sem_wait(write_sem) == -1)
+			perror("sem_wait error");
+	sem_post(rmutex);
+	sem_post(rwmutex);
+    
     myFCB->readptr = 0; //文件指针重置
     //读数据
     char* data = (char*)getBlockAddr(myFCB->blockNum);
-
     int dataSize = myFCB->dataSize;
     /* printf("myFCB->dataSize = %d\n", myFCB->dataSize); */
     //在不超出数据长度下，读取指定长度的数据
@@ -411,10 +415,13 @@ int my_read(char fileName[], int length)
     printf("\ninput a character to end up reading....\n");
     getchar();
 	
-    /* 如果是最后一个读者就负责释放读者锁 */
-	sem_getvalue(write_sem, &val);
-	if(write_wait == 1)
+    /* 释放锁 */
+	if(sem_wait(rmutex) == -1)
+		perror("sem_wait error");
+	myFCB->readCount --;
+	if(myFCB->readCount == 0)
 		sem_post(write_sem);
+	sem_post(rmutex);
     return 0;
 }
 
@@ -429,38 +436,37 @@ int my_write(char fileName[], char content[])
         return -1;
     }
 
-	char w_sem[15], c_sem[15];
+	char w_sem[15], rw_mt[15];
 	sprintf(w_sem, "write_sem%d",unitIndex);
-	sprintf(c_sem, "read_sem%d",unitIndex);
+	sprintf(rw_mt, "rwmutex%d",unitIndex);
     write_sem = sem_open(w_sem, O_CREAT, 0644, 1);
-	read_sem = sem_open(c_sem, O_CREAT, 0644, 1);
-    /* 获得写者锁 */
-	int val, read_wait = 0;
-	sem_getvalue(read_sem, &val);
-	if(sem_wait(write_sem) == -1)
+	rwmutex = sem_open(rw_mt, O_CREAT, 0644, 1);
+	
+    /* 获得锁 */
+	if(sem_wait(rwmutex) == -1)
 		perror("sem_wait error");
-	if(sem_wait(read_sem) == -1)
+	if(sem_wait(write_sem) == -1)
 		perror("sem_count error");
+	
+	
     //控制块
     int FCBBlock = currentDirTable->dirs[unitIndex].startBlock;
     struct FCB* myFCB = (struct FCB*)getBlockAddr(FCBBlock);
     int contentLen = strlen(content);
     int fileSize = myFCB->fileSize * block_szie;
     char* data = (char*)getBlockAddr(myFCB->blockNum);
-	
 	//在不超出文件的大小的范围内写入
     for(i = 0; i < contentLen && myFCB->dataSize < fileSize; i++, myFCB->dataSize++)
     {
         *(data+myFCB->dataSize) = content[i];
     }
-	
     /* 模拟编辑器,控制写者不立即退出 */
-    printf("input a character to end up waiting....\n");
+    printf("input a character to end up writing....\n");
     getchar();
 	
-    /* 释放写者锁 */
-	sem_post(read_sem);
+    /* 释放锁 */
 	sem_post(write_sem);
+	sem_post(rwmutex);
 	
     if(myFCB->dataSize == fileSize)
         printf("file is full, can't write in\n");

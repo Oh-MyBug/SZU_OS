@@ -50,6 +50,8 @@ struct FCB {
     int dataSize;   //已写入的内容大小，字节为单位
     int readptr;    //读指针，字节为单位
     int link;       //文件链接数
+	
+	int readCount;	//读进程计数
 };
 
 void initRootDir();	// 初始化根目录
